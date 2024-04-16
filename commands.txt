@@ -1,0 +1,12 @@
+index="employees_index" | eval Gender = case(gender="M", "MALE", gender="F", "FEMALE") | eval FullName = first_name+" "+last_name  | table emp_no FullName Gender
+
+
+index="employees_index" | eval date = strptime(hire_date, "%Y-%m-%d") | eval currentdate = now() | eval experience = round(((currentdate - date)/86400)/365) | table emp_no hire_date experience
+
+index="retail_index" | eval Status = if(Quantity > 5, "Available","Not Available") | table InvoiceNo Description Status
+
+index="retail_index" | eval ProductStatus = if(Quantity > 5, "Available","Not Available") | eval  FilteredDate=strptime("20/6/2011","%d/%m/%Y") | eval Invoice_Date= strptime(InvoiceDate,"%d/%m/%Y") | eval ExpectedAvialability = (Invoice_Date - FilteredDate)/86400 | eval DeliveryStatus = if(ExpectedAvailability < 15, "Deliverable","Not Deliverable") | table InvoiceNo Description ProductStatus DeliveryStatus
+
+
+
+index="retail_index" | eval  FilteredDate=strptime("20/6/2011","%d/%m/%Y") | eval Invoice_Date= strptime(InvoiceDate,"%d/%m/%Y") | eval ExpectedAvialability = (Invoice_Date - FilteredDate)/86400 | eval DeliveryStatus = if(((ExpectedAvailability < 15) AND (Quantity > 5)), "Deliverable","Not Deliverable") | table InvoiceNo Description DeliveryStatus
