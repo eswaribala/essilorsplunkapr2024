@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+  inventoryapi:
+    image: ${DOCKER_REGISTRY-}inventoryapi
+    build:
+      context: .
+      dockerfile: InventoryAPI/Dockerfile
+    ports:
+     -   8085:80
+     -   8087:443 
+    depends_on:
+      - sqlserverinventoryservice
+  sqlserverinventoryservice:  
+    image: mcr.microsoft.com/mssql/server 
+    hostname: 'sqlserverinventoryservice'  
+    environment:  
+      ACCEPT_EULA: 'Y' 
+      SA_PASSWORD: "Vignesh@95"  
+    volumes:  
+      - ./invapi:/var/opt/mssql/data  
+    ports:  
+      - '1406:1433'  
+    expose:  
+      - 1433 
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus43543/prometheus.yml:ro
+    
+  grafana: 
+    image: grafana/grafana
+    #command:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+    restart: always
+    ports:
+      - 3000:3000 
