@@ -10,3 +10,70 @@ index="retail_index" | eval ProductStatus = if(Quantity > 5, "Available","Not Av
 
 
 index="retail_index" | eval  FilteredDate=strptime("20/6/2011","%d/%m/%Y") | eval Invoice_Date= strptime(InvoiceDate,"%d/%m/%Y") | eval ExpectedAvialability = (Invoice_Date - FilteredDate)/86400 | eval DeliveryStatus = if(((ExpectedAvailability < 15) AND (Quantity > 5)), "Deliverable","Not Deliverable") | table InvoiceNo Description DeliveryStatus
+
+
+index="retail_index" | sort InvoiceNo | reverse
+
+
+index="retail_index" | dedup Country
+
+
+index="retail_index" | stats dc(Country) as CountryCount
+
+
+
+
+index="retail_index" | stats sum( Quantity) as TotalQuantity
+
+
+index="retail_index" | stats sum( Quantity) as TotalQuantity avg(UnitPrice) as AveragePrice
+
+index="retail_index" | regex Country="^[A-Z][a-z]{10}"
+
+index="retail_index" | regex "^\d+,(?P<InvoiceNo>[^,]+)"
+
+
+
+index="retail_index" | where Quantity < 0 | delete
+
+#verify look up table
+
+| inputlookup dept.csv
+
+
+
+
+index="dept_emp_v1_index" | lookup dept_emp_lookup dept_no OUTPUT dept_name | lookup dept_mgr_lookup dept_no OUTPUT emp_no as mgr_no | table emp_no  dept_name mgr_no
+
+
+
+
+
+index="employee_index" | table emp_no gender| `GenderMacro(gender)`
+
+
+
+
+
+index="employees_index" | eval date = strptime(hire_date, "%Y-%m-%d") | eval currentdate = now() | `experience(currentdate,date)` | table emp_no hire_date experience
+
+
+index="dept_emp_v1_index" | lookup dept_emp_lookup dept_no OUTPUT dept_name | lookup dept_mgr_lookup dept_no OUTPUT emp_no as mgr_no | lookup emp_lookup emp_no OUTPUT gender |table emp_no gender dept_name mgr_no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
